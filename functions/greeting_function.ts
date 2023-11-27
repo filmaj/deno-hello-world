@@ -1,5 +1,5 @@
 import { DefineFunction, Schema, SlackFunction } from "deno-slack-sdk/mod.ts";
-
+import Datastore from "../datastores/test.ts";
 /**
  * Functions are reusable building blocks of automation that accept
  * inputs, perform calculations, and provide outputs. Functions can
@@ -37,7 +37,20 @@ export const GreetingFunctionDefinition = DefineFunction({
 
 export default SlackFunction(
   GreetingFunctionDefinition,
-  ({ inputs }) => {
+  async ({ inputs, client }) => {
+    const testObject = {
+      deal_name: "test name",
+      partner_names: ["name1","name2"]
+    };
+
+    const putResponse = await client.apps.datastore.put<typeof Datastore.definition>({
+      datastore: "test-data",
+      item: { 
+        id: "1",
+        test_field: testObject,
+      }
+    });
+    console.log('put response', putResponse);
     const { recipient, message } = inputs;
     const salutations = ["Hello", "Hi", "Howdy", "Hola", "Salut"];
     const salutation =
